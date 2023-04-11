@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <math.h>
+
 #include "app_error.h"
 #include "nrf.h"
 #include "nrf_delay.h"
@@ -20,10 +22,15 @@
 
 #include "buckler.h"
 
+
 // ADC channels
 #define X_CHANNEL 0
 #define Y_CHANNEL 1
 #define Z_CHANNEL 2
+
+#define BIAS 1.455
+#define SENSITIVITY 0.4074
+#define PI 3.14159265
 
 // callback for SAADC events
 void saadc_callback (nrfx_saadc_evt_t const * p_event) {
@@ -76,16 +83,46 @@ int main (void) {
   // initialization complete
   printf("Buckler initialized!\n");
 
+  float x_v;
+  float y_v;
+  float z_v;
+  float lsb = 0.000878f;
+
+  int i = 0;
+  float angle = 0;
+
+  double x_preArc;
+
+  float radians = 180/ PI;
+
+  double x_g;
+
   // loop forever
   while (1) {
+
     // sample analog inputs
     nrf_saadc_value_t x_val = sample_value(X_CHANNEL);
-    nrf_saadc_value_t y_val = sample_value(Y_CHANNEL);
-    nrf_saadc_value_t z_val = sample_value(Z_CHANNEL);
+    //nrf_saadc_value_t y_val = sample_value(Y_CHANNEL);
+    //nrf_saadc_value_t z_val = sample_value(Z_CHANNEL);
+
+    x_v = (float)((int)x_val * lsb);
+    //y_v = (float)((int)y_val * lsb);
+    //z_v = (float)((int)z_val * lsb);
+
+    x_preArc = (x_v - BIAS)/SENSITIVITY;
+
+    //x_g =  (SENSITIVITY * x_v) + BIAS;
+
+    angle = (float)(asin(x_preArc)) *  radians;
+
+    //angle = (float)(asin(x_g)) *  radians;
 
     // display results
-    printf("x: %d\ty: %d\tz:%d\n", x_val, y_val, z_val);
-    nrf_delay_ms(250);
+   // printf("x: %d, V: %f\ty: %d, V: %f\tz:%d, V: %f\n", x_val, x_v, y_val, y_v, z_val, z_v);
+    printf("angle  %f,  i  %d\n",angle, i);
+    // printf("x_g  %f,  i  %d\n",x_g, i);
+    i+=1;
+    nrf_delay_ms(500);
   }
 }
 

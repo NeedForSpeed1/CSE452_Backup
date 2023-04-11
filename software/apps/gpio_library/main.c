@@ -101,18 +101,15 @@ int main(void) {
 
   if (mask_22 != 0 && mask_28 == 0)
   {
-    //*pOutclear =  0x7<<23;
-    *pOutset =  0x7<<23;
+    *pOutclear =  0x7<<23;
   }
   else if (mask_22 == 0 && mask_28 != 0)
   {
-    //*pOutclear =  0x7<<23;
-    *pOutset =  0x7<<23;
+    *pOutclear =  0x7<<23;
   }
   else
   {
-    //*pOutset =  0x7<<23;
-    *pOutclear =  0x7<<23;
+    *pOutset =  0x7<<23;
   }
 
     printf("Button0: %x, SWITCH0: %x\n", mask_22, mask_28); //show values changing

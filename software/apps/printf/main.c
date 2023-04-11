@@ -32,7 +32,8 @@ int main(void) {
   uint32_t i = 0;
   while (1) {
     nrf_delay_ms(1000);
-    printf("Iteration: %lu\n", i++);
+    //printf("Iteration: %lu\n", i++);
+    printf("i: %p \n", &i);
   }
 }
 

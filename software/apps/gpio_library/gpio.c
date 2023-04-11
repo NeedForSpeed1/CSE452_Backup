@@ -1,4 +1,3 @@
-/*
 #include "gpio.h"
 
 // Inputs: 
@@ -38,7 +37,6 @@ void gpio_config(uint8_t gpio_num, gpio_direction_t dir) {
   {
     printf("Invalid input for pin's direction\n");
   }
-
 }
 
 // Set gpio_num high
@@ -63,7 +61,6 @@ void gpio_clear(uint8_t gpio_num) {
 //  gpio_num - gpio number 0-31
 bool gpio_read(uint8_t gpio_num) {
     // should return pin state
-
     uint32_t pin_state = *pIn << pin_arg;
     if (pin_state == 1)
     {
@@ -71,4 +68,3 @@ bool gpio_read(uint8_t gpio_num) {
     }
     return false;
 }
-*/

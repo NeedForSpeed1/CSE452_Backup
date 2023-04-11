@@ -56,34 +56,114 @@
 #include "bsp.h"
 #include "nrf_delay.h"
 #include "app_pwm.h"\
+#include "app_timer.h"
+
+
+#define TIMER1 1
+#define TIME_PERIOD 3000
+#define TICKS 93749
 
 // Create the instance "PWM1" using TIMER1.
 
- 
+APP_PWM_INSTANCE(PWM1, TIMER1); 
+
+
+void timer_init(){
+
+  //---------------TIMER SET UP-------------------// 
+
+  NRF_TIMER4->PRESCALER = 0x09;        //set to highest possible to slow down clock 
+
+  NRF_TIMER4->MODE = 0x00;             //set to timer mode
+
+  NRF_TIMER4->BITMODE = 0x02;          //set to 32 bits 
+
+  NRF_TIMER4->TASKS_CLEAR = 0x01;
+
+  NRF_TIMER4->TASKS_START = 0x01;
+
+    //---------------COUNTER SET UP-------------------// 
+  NRF_TIMER3->MODE = 0x01;            //set to counter mode
+
+  NRF_TIMER3->BITMODE = 0x00;         //set to 16 bits
+
+  NRF_TIMER3->TASKS_START = 0x01;
+
+
+  NRF_TIMER4->CC[0] = TICKS; //bc time period set to 3000 ms for pwm
+ }
+
+ uint32_t read_timer(){
+
+    // fill in this function for reading the timer value on calling this function
+  NRF_TIMER4->TASKS_CAPTURE[1] = 0x01;
+  uint32_t value_timer = NRF_TIMER4->CC[1];
+  return value_timer;
+}
+
+int read_counter(){
+  NRF_TIMER3->TASKS_CAPTURE[1] = 0x01;
+  int value_counter = NRF_TIMER3->CC[1];
+  return value_counter;
+}
+
+int getFreq()
+{
+    //frequency is 1/time_period
+    int freq = 1/TIME_PERIOD;
+    return freq;
+}
+
+int getDuty()
+{
+    //duty = t_active / time_period
+    //wrapping the pwm lib's method in this to get int data type from it for recording in handler
+    int curr_duty = (int)(app_pwm_channel_duty_get(PWM1, 1));
+
+    return curr_duty;
+}
+
+void TIMER4_IRQHandler(void) {
+    NRF_TIMER4->EVENTS_COMPARE[0] = 0;
+
+    NRF_TIMER4->TASKS_CLEAR = 0x01;
+    
+    printf("Button Interrupt Received\n");
+    NRF_TIMER3->TASKS_COUNT = 0x01;           //increment counter by 1
+
+    printf("Count: %d, Frequency: %d, Duty Cycle: %d\n", read_counter(), getFreq(), getDuty());
+}
+
 
 int main(void)
 {
+
     ret_code_t err_code;
 
-    /* 2-channel PWM, 200Hz, output on Buckler LED pins. */
-    
 
-    /* Switch the polarity of the second channel. */
-    
+    NRF_TIMER4->INTENSET = 0x1 << 16;   //enable interrupt for event[0], config[0] is at 1st bit of this register
+    NVIC_EnableIRQ(TIMER4_IRQn);
+    NVIC_SetPriority(TIMER4_IRQn, 0);
+  
+    timer_init();  
 
     /* Initialize PWM. */
-    err_code = ...
-    APP_ERROR_CHECK(err_code);
+    app_pwm_config_t config_pwm =  APP_PWM_DEFAULT_CONFIG_1CH(TIME_PERIOD, 11); //set to pin 11
+
+    pwm_config.pin_polarity[1] = APP_PWM_POLARITY_ACTIVE_HIGH;
+
+    //set up duty cycle (using channel 1, duty cycle is at 50%)
+    app_pwm_channel_duty_set(PWM1, 1, 50); 
+
+
     /* Enable PWM. */
+    app_pwm_enable(PWM1);
 
     uint32_t value;
     while (true)
     {
-        /* Your code for modifying the duty cycle value */
-            
-            // for catching any errors returned
-            APP_ERROR_CHECK(...);
-            nrf_delay_ms(25);
+
+            nrf_delay_ms(1000);
         
     }
 

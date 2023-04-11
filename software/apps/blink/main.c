@@ -39,12 +39,65 @@ int main(void) {
     APP_ERROR_CHECK(error_code);
   }
 
+  //create array of 3 ints for lab2, get address
+  //int lab2[] = {0, 1, 2};
+
+
   // loop forever
   while (1) {
     for (int i=0; i<3; i++) {
       nrf_gpio_pin_toggle(LEDS[i]);
       nrf_delay_ms(500);
     }
+
+    //melody of song for lab 2
+    /*
+    for (int j = 0; j < 4; j++){
+      for (int i = 0; i < 3; i++){
+       nrf_gpio_pin_toggle(LEDS[0]);
+       nrf_delay_ms(250);
+       nrf_gpio_pin_toggle(LEDS[0]);
+       nrf_gpio_pin_toggle(LEDS[1]);
+       nrf_delay_ms(250);
+       nrf_gpio_pin_toggle(LEDS[1]);
+      }
+      nrf_gpio_pin_toggle(LEDS[2]);
+      nrf_delay_ms(2500);
+      nrf_gpio_pin_toggle(LEDS[2]);
+    }
+    */
+    //bass for song for lab 2
+    /*
+    for (int k = 0; k < 7; k++) {
+       nrf_gpio_pin_toggle(LEDS[0]);
+       nrf_delay_ms(500);
+       nrf_gpio_pin_toggle(LEDS[0]);
+       nrf_gpio_pin_toggle(LEDS[1]);
+       nrf_delay_ms(500);
+       nrf_gpio_pin_toggle(LEDS[1]);
+
+       nrf_gpio_pin_toggle(LEDS[0]);
+       nrf_delay_ms(250);
+       nrf_gpio_pin_toggle(LEDS[0]);
+       nrf_gpio_pin_toggle(LEDS[2]);
+       nrf_delay_ms(250);
+       nrf_gpio_pin_toggle(LEDS[2]);
+       nrf_gpio_pin_toggle(LEDS[0]);
+       nrf_delay_ms(250);
+       nrf_gpio_pin_toggle(LEDS[0]);
+       nrf_gpio_pin_toggle(LEDS[2]);
+       nrf_delay_ms(250);
+       nrf_gpio_pin_toggle(LEDS[2]);
+    }
+    nrf_gpio_pin_toggle(LEDS[0]);
+    nrf_gpio_pin_toggle(LEDS[1]);
+    nrf_delay_ms(1000);
+    nrf_gpio_pin_toggle(LEDS[0]);
+    nrf_gpio_pin_toggle(LEDS[1]);
+    nrf_gpio_pin_toggle(LEDS[2]);
+    nrf_delay_ms(1000);
+    nrf_gpio_pin_toggle(LEDS[2]);
+    */
   }
 }
 

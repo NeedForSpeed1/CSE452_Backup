@@ -10,6 +10,8 @@
 #include "virtual_timer.h"
 #include "virtual_timer_linked_list.h"
 
+uint32_t id_list = 0;
+
 // This is the interrupt handler that fires on a compare event
 void TIMER4_IRQHandler(void) {
   // This should always be the first line of the interrupt handler!
@@ -17,6 +19,20 @@ void TIMER4_IRQHandler(void) {
   NRF_TIMER4->EVENTS_COMPARE[0] = 0;
 
   // Place your interrupt handler code here
+  __disable_irq()
+
+  node_t* curr_node = list_get_first();
+
+  while (curr_node != NULL)
+  {
+      (*(curr_node->cbFunc))();
+
+      curr_node = curr_node->next;
+  }
+
+  checkTimers();
+
+  __enable_irq()
 
 }
 
@@ -24,6 +40,14 @@ void checkTimers(){
 	// update CC[0] value by looking at the linked list
 	// node after the current one, and update CC[0] using
 	// the timer_value from this node
+
+  uint32_t old_timer_value = list_get_first()->timer_value;  //remove old node
+  list_remove_first();
+
+  uint32_t new_timer_value = old_timer_value + read_timer(); //create and insert new node
+  timer_start(new_timer_value, NULL, false);
+
+  TIMER4->CC[0] = list_get_first()->timer_value;   //update cc val based on new first node
 }
 
 
@@ -62,7 +86,18 @@ void virtual_timer_init(void) {
 static uint32_t timer_start(uint32_t microseconds, virtual_timer_callback_t cb, bool repeated) {
 
   // Return a unique timer ID. (hint: What is guaranteed unique about the timer you have created?)
-  return 0;
+
+  node_t* t_node = (node_t*)malloc(sizeof(node_t)); //create space for timer node
+  t_node->timer_value = microseconds;
+  t_node->period = timer_value + timer_value;
+  t_node->ID = id_list;
+  id_list++;
+
+  list_insert_sorted(t_node); //insert in sorted order based on timer_value attribute
+
+  TIMER4->CC[0] = list_get_first()->timer_value; //how does it know TIMER4 ??
+
+  return id_list;
 }
 
 // You do not need to modify this function
@@ -83,3 +118,22 @@ uint32_t virtual_timer_start_repeated(uint32_t microseconds, virtual_timer_callb
 void virtual_timer_cancel(uint32_t timer_id) {
 }
 
+
+
+//make a call to make 5 timers based on specs from lab using timer_start() that was implemented
+void make_five_timers()
+{
+  //5 timers: 8000000, 500000, 1000000, 8000000 and 7000000
+
+  timer_start(1000000, NULL, false);   //timer 1
+  
+  timer_start(8000000, NULL, false);   //timer 2
+
+  timer_start(8000000, NULL, false);   //timer 3
+
+  timer_start(7000000, NULL, false);   //timer 4
+
+  timer_start(500000, NULL, false);    //timer 5
+
+  list_print();   //print the list to see verify it worked
+}
